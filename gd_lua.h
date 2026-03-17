@@ -6,7 +6,11 @@
 #include "scene/2d/node_2d.h"
 #include "scene/2d/canvas_item.h"
 
-#include "lua/lua.h"
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 
 #include <string>
 #include <thread>
