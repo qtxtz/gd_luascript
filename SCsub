@@ -3,13 +3,19 @@
 Import("env")
 Import("env_modules")
 
+# Lua amalgamation — compiled once with env_modules so every clone inherits
+# the CPPPATH and reuses the same object (shared with gd_bullet_hell, gd_rmlui).
+if not env.get("lua_obj"):
+    env_modules.Append(CPPPATH=["#thirdparty/lua"])
+    env["lua_obj"] = env_modules.Object("#thirdparty/lua/lua-all.c")
+
 env_module = env_modules.Clone()
-env_module.Append(CPPPATH=["#modules/gdextensions", "#thirdparty/lua", "#thirdparty", "_tools/tolua-5.2.4/include", "."])
+env_module.Append(CPPPATH=["#modules/gdextensions", "#thirdparty", "_tools/tolua-5.2.4/include", "."])
 # LUA_COMPAT_5_1/5_2 enabled globally in thirdparty/lua/luaconf.h
 
 sources = Glob("*.cpp") + Glob("lua/*.c") + Glob("extensions/*.c") + Glob("extensions/*.cpp")
 
-# Compile as a static library
-lib = env_module.Library("gd_luascript", sources)
+# Compile as a static library (lua object included)
+lib = env_module.Library("gd_luascript", env["lua_obj"] + sources)
 # Add the library as a dependency of the final executable
 env.Prepend(LIBS=[lib])
